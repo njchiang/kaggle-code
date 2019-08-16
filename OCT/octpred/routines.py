@@ -48,12 +48,12 @@ def eval_model(model, criterion, ds, mode="val"):
     avg_acc = 0
     dataloader = ds.get_dataloaders()[mode]
     test_batches = len(dataloader)
-    print("Evaluating model")
-    print('-' * 10)
+    logging.info("Evaluating model")
+    logging.info('-' * 10)
     
     for i, data in tqdm(enumerate(dataloader)):
         if i % 100 == 0:
-            print("\rTest batch {}/{}".format(i, test_batches), end='', flush=True)
+            logging.info("\rTest batch {}/{}".format(i, test_batches), end='', flush=True)
         model.train(False)
         model.eval()
         inputs, labels = data
@@ -80,11 +80,11 @@ def eval_model(model, criterion, ds, mode="val"):
     # assert avg_loss == avg_loss_ds, "losses are not equal"
     # assert avg_acc == avg_acc_ds, "averages are not equal"
     elapsed_time = time.time() - since
-    print()
-    print("Evaluation completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
-    print("Avg loss (test): {:.4f}".format(avg_loss))
-    print("Avg acc (test): {:.4f}".format(avg_acc))
-    print('-' * 10)
+    
+    logging.info("Evaluation completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
+    logging.info("Avg loss (test): {:.4f}".format(avg_loss))
+    logging.info("Avg acc (test): {:.4f}".format(avg_acc))
+    logging.info('-' * 10)
 
 def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=False, val=True, save_dir=None):
     since = time.time()
@@ -107,8 +107,8 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
         max_iter = 1 + train_batches
         
     for epoch in range(num_epochs):
-        print("Epoch {}/{}".format(epoch, num_epochs))
-        print('-' * 10)
+        logging.info("Epoch {}/{}".format(epoch, num_epochs))
+        logging.info('-' * 10)
         # reset epoch metrics 
         if save_dir:
             save_model(model, os.path.join(save_dir, "epoch-{:04d}.pt".format(epoch)))
@@ -120,7 +120,7 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
         
         for i, data in tqdm(enumerate(dataloaders[TRAIN])):
             if i % 100 == 0:
-                print("\rTraining batch {}/{}".format(i, train_batches / 2), end='', flush=True)
+                logging.info("\rTraining batch {}/{}".format(i, train_batches / 2), end='', flush=True)
             
             if i > max_iter:
                 break
@@ -137,7 +137,7 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             del inputs, labels, outputs, preds
             torch.cuda.empty_cache()
         
-        print()
+        
         avg_loss = met_train.get_metrics()["loss"] / dataset_sizes[TRAIN]
         avg_acc = met_train.get_metrics()["acc"] / dataset_sizes[TRAIN]
         avg_train_met.update({"loss": avg_loss, "acc": avg_acc})
@@ -147,7 +147,7 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             
         for i, data in tqdm(enumerate(dataloaders[VAL])):
             if i % 100 == 0:
-                print("\rValidation batch {}/{}".format(i, val_batches), end='', flush=True)
+                logging.info("\rValidation batch {}/{}".format(i, val_batches), end='', flush=True)
             
             if i > max_iter:
                 break
@@ -168,23 +168,23 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
         avg_acc_val = met_val.get_metrics()["acc"] / dataset_sizes[VAL]
         avg_val_met.update({"loss": avg_loss_val, "acc": avg_acc_val})
         
-        print()
-        print("Epoch {} result: ".format(epoch))
-        print("Avg loss (train): {:.4f}".format(avg_loss))
-        print("Avg acc (train): {:.4f}".format(avg_acc))
-        print("Avg loss (val): {:.4f}".format(avg_loss_val))
-        print("Avg acc (val): {:.4f}".format(avg_acc_val))
-        print('-' * 10)
-        print()
+        
+        logging.info("Epoch {} result: ".format(epoch))
+        logging.info("Avg loss (train): {:.4f}".format(avg_loss))
+        logging.info("Avg acc (train): {:.4f}".format(avg_acc))
+        logging.info("Avg loss (val): {:.4f}".format(avg_loss_val))
+        logging.info("Avg acc (val): {:.4f}".format(avg_acc_val))
+        logging.info('-' * 10)
+        
         
         if avg_acc_val > best_acc:
             best_acc = avg_acc_val
             best_model_wts = copy.deepcopy(model.state_dict())
         
     elapsed_time = time.time() - since
-    print()
-    print("Training completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
-    print("Best acc: {:.4f}".format(best_acc))
+    
+    logging.info("Training completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
+    logging.info("Best acc: {:.4f}".format(best_acc))
     
     model.load_state_dict(best_model_wts)
     if save_dir:
