@@ -41,9 +41,9 @@ def main(_):
     logging.info("model initialized")
     
     if FLAGS.restore:
-        maybe_restore(model, FLAGS.save_dir)
-        logging.info("model loaded")
-        pass
+        if FLAGS.checkpoint:
+            maybe_restore(model, FLAGS.checkpoint)
+            logging.info("model loaded")
     
     criterion = torch.nn.CrossEntropyLoss()
     

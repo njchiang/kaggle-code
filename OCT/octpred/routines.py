@@ -28,10 +28,6 @@ def maybe_restore(model, weights_dir):
 def save_model(model, weights_dir):
     torch.save(model.state_dict(), weights_dir)
 
-def predict_step(model, inputs, labels):
-    # might want to use torch.from_numpy()
-    return model(inputs)
-
 def train_step(model, inputs, labels, optimizer, criterion):
     optimizer.zero_grad()
     outputs = model(inputs)
