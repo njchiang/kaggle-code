@@ -7,7 +7,7 @@ from absl import logging
 
 from octpred.data.dataloader import OCTDataSet
 from octpred.models.resnet import resnet50
-from octpred.routines import train_model, eval_model, save_model, maybe_restore
+from octpred.routines import train_model, eval_model, save_model, maybe_restore, visualize_model
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string("data_dir", "~/Downloads/OCT2017", "path to data directory")
@@ -21,12 +21,20 @@ flags.DEFINE_boolean("debug", False, "debug mode")
 flags.DEFINE_boolean("train", False, "training")
 flags.DEFINE_boolean("val", False, "inference on validation")
 flags.DEFINE_boolean("test", False, "inference on testing")
+flags.DEFINE_string("deploy", None, "dataset to run inference and visualization")
 flags.DEFINE_boolean("restore", False, "try to restore")
 flags.DEFINE_string("gpu", "0", "gpu id")
 
 use_gpu = torch.cuda.is_available()
 
 def main(_):
+    if FLAGS.save_dir:
+        if not os.path.exists(FLAGS.save_dir):
+            os.makedirs(FLAGS.save_dir)
+        log_dir = os.path.join(FLAGS.save_dir, "logs")
+        logging.get_absl_handler().use_absl_log_file(log_dir)
+
+
     if FLAGS.gpu:
         os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
         os.environ["CUDA_VISIBLE_DEVICES"]=FLAGS.gpu
@@ -67,6 +75,13 @@ def main(_):
     if FLAGS.test:
         logging.info("Running inference on test set")
         eval_model(model, criterion, ds=ds, mode="test")
+
+    if FLAGS.deploy in ['train', 'val', 'test']:
+        save_path = os.path.join(FLAGS.save_dir, "figs", FLAGS.deploy)
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        logging.info("Running inference and visualizing on {} set".format(FLAGS.deploy))
+        visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
 
     logging.info("Exiting...")
 

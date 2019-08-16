@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import torchvision
 import torch
@@ -7,20 +9,30 @@ from tqdm import tqdm
 
 use_gpu = torch.cuda.is_available()
 
-def imshow(inp, title=None):
+def imshow(inp, title=None, save_path=None, show=True):
     inp = inp.numpy().transpose((1, 2, 0))
     # plt.figure(figsize=(10, 10))
     plt.axis('off')
     plt.imshow(inp)
     if title is not None:
         plt.title(title)
-    plt.pause(0.001)
 
-def show_databatch(inputs, classes, class_names):
+    if save_path:
+        plt.savefig(save_path)
+    if show:
+        plt.show()
+        plt.pause(0.001)
+
+def show_databatch(inputs, classes, class_names, save_dir=None):
     out = torchvision.utils.make_grid(inputs)
-    imshow(out, title=[class_names[x] for x in classes])
+    show = False if save_dir else True
+    imshow(out, title=[class_names[x] for x in classes], save_path=save_dir, show=show)
 
-def visualize_model(model, ds, mode="val", num_images=6):
+def visualize_model(model, ds, mode="val", num_images=6, save_dir=None):
+    
+    gt_fig_path = None
+    pred_fig_path = None
+
     was_training = model.training
     dataloader = ds.get_dataloaders()[mode]
     class_names = ds.get_class_names()
@@ -32,6 +44,9 @@ def visualize_model(model, ds, mode="val", num_images=6):
 
     # for i, data in enumerate(dataloaders[sel]):
     for i, data in tqdm(enumerate(dataloader)):
+        if save_dir:
+            gt_fig_path = os.path.join(save_dir, "gt-{:04d}.png".format(i))
+            pred_fig_path = os.path.join(save_dir, "preds-{:04d}.png".format(i))
         inputs, labels = data
         size = inputs.size()[0]
         
@@ -47,9 +62,9 @@ def visualize_model(model, ds, mode="val", num_images=6):
         predicted_labels = [preds[j] for j in range(inputs.size()[0])]
         
         print("Ground truth:")
-        show_databatch(inputs.data.cpu(), labels.data.cpu(), class_names)
+        show_databatch(inputs.data.cpu(), labels.data.cpu(), class_names, gt_fig_path)
         print("Prediction:")
-        show_databatch(inputs.data.cpu(), predicted_labels, class_names)
+        show_databatch(inputs.data.cpu(), predicted_labels, class_names, pred_fig_path)
         
         del inputs, labels, outputs, preds, predicted_labels
         torch.cuda.empty_cache()

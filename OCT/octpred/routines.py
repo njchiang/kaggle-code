@@ -11,14 +11,15 @@ from torch.autograd import Variable
 
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from .utils.metrics import Metrics
+from .utils.vis import visualize_model
 
 TRAIN='train'
 VAL='val'
 TEST='test'
 use_gpu = torch.cuda.is_available()
-# TODO : accuracy counts are wonky...
 
 def maybe_restore(model, weights_dir):
     try:
@@ -36,6 +37,9 @@ def train_step(model, inputs, labels, optimizer, criterion):
     loss.backward()
     optimizer.step()
     return outputs, loss
+
+def deploy_model(model, ds, mode="val", save_path=None):
+    visualize_model(model, ds, mode, save_dir=save_path)
 
 def eval_model(model, criterion, ds, mode="val"):
 
