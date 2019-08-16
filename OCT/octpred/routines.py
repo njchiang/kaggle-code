@@ -30,19 +30,10 @@ def save_model(model, weights_dir):
 
 def predict_step(model, inputs, labels):
     # might want to use torch.from_numpy()
-    with torch.no_grad():
-        if use_gpu:
-            inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-        else:
-            inputs, labels = Variable(inputs), Variable(labels)    
     return model(inputs)
 
 def train_step(model, inputs, labels, optimizer, criterion):
     optimizer.zero_grad()
-    if use_gpu:
-        inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-    else:
-        inputs, labels = Variable(inputs), Variable(labels)
     outputs = model(inputs)
     loss = criterion(outputs, labels)
     loss.backward()
@@ -66,7 +57,12 @@ def eval_model(model, criterion, ds, mode="val"):
         model.train(False)
         model.eval()
         inputs, labels = data
-        outputs = predict_step(model, inputs, labels)
+        with torch.no_grad():
+            if use_gpu:
+                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+            else:
+                inputs, labels = Variable(inputs), Variable(labels)
+        outputs = model(inputs)
         _, preds = torch.max(outputs.data, 1)
         loss = criterion(outputs, labels)
 
@@ -130,6 +126,10 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
                 break
             
             inputs, labels = data
+            if use_gpu:
+                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+            else:
+                inputs, labels = Variable(inputs), Variable(labels)
             outputs, loss = train_step(model, inputs, labels, optimizer, criterion)
             _, preds = torch.max(outputs.data, 1)
             met_train.update({"loss": loss.data, "acc": torch.sum(preds == labels.data)}) 
@@ -154,7 +154,12 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             
             optimizer.zero_grad()
             inputs, labels = data
-            outputs = predict_step(model, inputs, labels)
+            with torch.no_grad():
+                if use_gpu:
+                    inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                else:
+                    inputs, labels = Variable(inputs), Variable(labels)
+            outputs = model(inputs)
             _, preds = torch.max(outputs.data, 1)
             loss = criterion(outputs, labels)
             met_val.update({"loss": loss.data, "acc": torch.sum(preds == labels.data)})
