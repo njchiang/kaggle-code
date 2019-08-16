@@ -12,6 +12,7 @@ from torch.autograd import Variable
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 from .utils.metrics import Metrics
 from .utils.vis import visualize_model
@@ -41,10 +42,31 @@ def train_step(model, inputs, labels, optimizer, criterion):
 def deploy_model(model, ds, mode="val", save_path=None):
     visualize_model(model, ds, mode, save_dir=save_path)
 
+def predict(model, ds, mode="val", write=False):
+    since = time.time()
+    dataloader = ds.get_dataloaders()[mode]
+    logging.info("Getting predictions")
+    all_preds, all_labels = [], [] 
+    for i, data in tqdm(enumerate(dataloader)):
+        model.train(False)
+        model.eval()
+        inputs, labels = data
+        with torch.no_grad():
+            if use_gpu:
+                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+            else:
+                inputs, labels = Variable(inputs), Variable(labels)
+        outputs = model(inputs)
+        _, preds = torch.max(outputs.data, 1)
+        all_preds += preds
+        all_labels += labels
+    elapsed_time = time.time() - since
+    logging.info("Evaluation completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
+    return preds, labels
+
 def eval_model(model, criterion, ds, mode="val"):
 
     since = time.time()
-    met = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
     avg_loss = 0
     avg_acc = 0
     dataloader = ds.get_dataloaders()[mode]
@@ -52,6 +74,10 @@ def eval_model(model, criterion, ds, mode="val"):
     test_batches = len(dataloader)
     logging.info("Evaluating model")
     logging.info('-' * 10)
+    
+    n_classes = len(ds.get_class_names())
+
+    met = Metrics(initial_value_dict={"loss": 0., "acc": 0., "cm": np.zeros((n_classes, n_classes))})
 
     for i, data in tqdm(enumerate(dataloader)):
         if i % 100 == 0:
@@ -68,7 +94,7 @@ def eval_model(model, criterion, ds, mode="val"):
         _, preds = torch.max(outputs.data, 1)
         loss = criterion(outputs, labels)
 
-        met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data)})
+        met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data), "cm": confusion_matrix(labels.data, preds)})
         # loss_test += loss.data  # [0] 08/15 JC
         # acc_test += torch.sum(preds == labels.data)
         del inputs, labels, outputs, preds
@@ -82,6 +108,7 @@ def eval_model(model, criterion, ds, mode="val"):
     logging.info("Evaluation completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
     logging.info("Avg loss (test): {:.4f}".format(avg_loss))
     logging.info("Avg acc (test): {}/{}: {:.4f}".format(met.get_metrics()["acc"], ds.get_dataset_sizes()[mode], avg_acc))
+    logging.info("Confusion Matrix (test): \n{}".format(met.get_metrics()["cm"]))
     logging.info('-' * 10)
 
     return met
