@@ -20,10 +20,10 @@ class OCTDataSet:
         data_transforms = self._create_transforms()
         image_datasets, class_names = self._create_folder_datasets(data_dir, data_transforms)
         dataloaders, dataset_sizes = self.create_dataloaders(image_datasets)
-        
+
         for x in [TRAIN, VAL, TEST]:
             print("Loaded {} images under {}".format(dataset_sizes[x], x))
-            
+
         print("Classes: ")
         print(class_names)
 
@@ -59,9 +59,9 @@ class OCTDataSet:
         ) for x in [TRAIN, VAL, TEST]}
         self._class_names = self._image_datasets[TRAIN].classes
         return self._image_datasets, self._class_names
-    
-    def create_dataloaders(self, image_datasets, batch_size=8, num_workers=4):
-        
+
+    def create_dataloaders(self, image_datasets, batch_size=8, num_workers=MAX_CPU_COUNT):
+
         self._dataloaders = {
             x: torch.utils.data.DataLoader(
                 image_datasets[x], batch_size=batch_size,
@@ -69,15 +69,15 @@ class OCTDataSet:
             )
             for x in [TRAIN, VAL, TEST]}
         self._dataset_sizes = {x: len(image_datasets[x]) for x in [TRAIN, VAL, TEST]}
-        
+
         return self._dataloaders, self._dataset_sizes
-    
+
     def get_class_names(self):
         return self._class_names
 
     def get_transforms(self):
         return self._data_transforms
-    
+
     def get_dataset_sizes(self):
         return self._dataset_sizes
 
@@ -86,8 +86,3 @@ class OCTDataSet:
 
     def get_datasets(self):
         return self._image_datasets
-
-
-
-
-

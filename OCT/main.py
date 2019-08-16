@@ -39,14 +39,14 @@ def main(_):
     model = resnet50(num_classes=4)
 
     logging.info("model initialized")
-    
+
     if FLAGS.restore:
         if FLAGS.checkpoint:
             maybe_restore(model, FLAGS.checkpoint)
             logging.info("model loaded")
-    
+
     criterion = torch.nn.CrossEntropyLoss()
-    
+
     if use_gpu:
         model.cuda()
 
@@ -59,7 +59,7 @@ def main(_):
             optimizer=optimizer_ft, scheduler=exp_lr_scheduler, 
             num_epochs=FLAGS.epochs, debug=FLAGS.debug)
         # save_model(model, FLAGS.checkpoint)
-    
+
     if FLAGS.val:
         logging.info("Running validation")
         eval_model(model, criterion, ds=ds, mode="val")

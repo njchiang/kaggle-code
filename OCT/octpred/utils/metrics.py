@@ -9,7 +9,7 @@ class Metrics:
         self._values = {k: [] for k in initial_value_dict}
 
     def update(self, value_dict):
-        # TODO need error handling here 
+        # TODO need error handling here
         for k, v in value_dict.items():
             self._total[k] += v
             self._values[k].append(v)
@@ -20,7 +20,6 @@ class Metrics:
 
     def get_metrics(self):
         return self._total
-    
+
     def get_history(self):
         return self._values
-    
