@@ -58,12 +58,6 @@ def main(_):
     if use_gpu:
         model.cuda()
 
-    if FLAGS.deploy in ['train', 'val', 'test']:
-        save_path = os.path.join(FLAGS.save_dir, "figs", FLAGS.deploy)
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
-        logging.info("Running inference and visualizing on {} set".format(FLAGS.deploy))
-
     if FLAGS.train:
         logging.info("Training over {} epochs".format(FLAGS.epochs))    
         optimizer_ft = torch.optim.Adam(model.parameters(), lr=FLAGS.learning_rate)
@@ -75,16 +69,22 @@ def main(_):
         # save_model(model, FLAGS.checkpoint)
 
     if FLAGS.val:
+        save_path = os.path.join(FLAGS.save_dir, "figs", "val")
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         logging.info("Running validation")
         eval_model(model, criterion, ds=ds, mode="val")
         if FLAGS.deploy:
-            visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
+            visualize_model(model, ds, num_images=FLAGS.batch_size, mode="val", save_dir=save_path)
     
     if FLAGS.test:
+        save_path = os.path.join(FLAGS.save_dir, "figs", "test")
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         logging.info("Running inference on test set")
         eval_model(model, criterion, ds=ds, mode="test")
         if FLAGS.deploy:
-            visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
+            visualize_model(model, ds, num_images=FLAGS.batch_size, mode="test", save_dir=save_path)
 
 
     logging.info("Exiting...")

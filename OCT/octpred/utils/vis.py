@@ -29,7 +29,7 @@ def show_databatch(inputs, classes, class_names, save_dir=None):
     imshow(out, title=[class_names[x] for x in classes], save_path=save_dir, show=show)
 
 def visualize_model(model, ds, mode="val", num_images=6, save_dir=None):
-    
+    # TODO: output multiple figures 
     gt_fig_path = None
     pred_fig_path = None
 
