@@ -25,7 +25,6 @@ use_gpu = torch.cuda.is_available()
 def maybe_restore(model, weights_dir):
     try:
         model.load_state_dict(torch.load(weights_dir))
-        return model
     except FileNotFoundError:
         logging.debug("Weights file at {} not found".format(weights_dir))
 
@@ -95,7 +94,6 @@ def eval_model(model, criterion, ds, mode="val"):
         _, preds = torch.max(outputs.data, 1)
         loss = criterion(outputs, labels)
 
-        # met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data)}) # in case the next line is too slow
         met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data), "cm": confusion_matrix(labels.cpu().data, preds.cpu())})
 
         # loss_test += loss.data  # [0] 08/15 JC

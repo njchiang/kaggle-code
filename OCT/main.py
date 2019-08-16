@@ -50,7 +50,7 @@ def main(_):
 
     if FLAGS.restore:
         if FLAGS.checkpoint:
-            model = maybe_restore(model, FLAGS.checkpoint)
+            maybe_restore(model, FLAGS.checkpoint)
             logging.info("model loaded")
 
     criterion = torch.nn.CrossEntropyLoss()
