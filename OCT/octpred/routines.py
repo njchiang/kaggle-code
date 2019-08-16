@@ -94,7 +94,8 @@ def eval_model(model, criterion, ds, mode="val"):
         _, preds = torch.max(outputs.data, 1)
         loss = criterion(outputs, labels)
 
-        met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data), "cm": confusion_matrix(labels.data, preds)})
+        met.update({"loss": loss.data, "acc": torch.sum(preds == labels.data), "cm": confusion_matrix(labels.cpu().data, preds.cpu())})
+
         # loss_test += loss.data  # [0] 08/15 JC
         # acc_test += torch.sum(preds == labels.data)
         del inputs, labels, outputs, preds
