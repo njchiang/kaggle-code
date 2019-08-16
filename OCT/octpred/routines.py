@@ -71,7 +71,7 @@ def eval_model(model, criterion, ds, mode="val"):
         torch.cuda.empty_cache()
 
     avg_loss = met.get_metrics()["loss"] / dataset_size  #dataset_sizes[sel]
-    avg_acc = met.get_metrics()["acc"] / dataset_size # dataset_sizes[sel]
+    avg_acc = float(met.get_metrics()["acc"]) / dataset_size # dataset_sizes[sel]
 
     elapsed_time = time.time() - since
 
@@ -79,6 +79,8 @@ def eval_model(model, criterion, ds, mode="val"):
     logging.info("Avg loss (test): {:.4f}".format(avg_loss))
     logging.info("Avg acc (test): {}/{}: {:.4f}".format(met.get_metrics()["acc"], ds.get_dataset_sizes()[mode], avg_acc))
     logging.info('-' * 10)
+
+    return met
 
 def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=False, val=True, save_dir=None):
     since = time.time()
@@ -131,10 +133,9 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             del inputs, labels, outputs, preds
             torch.cuda.empty_cache()
 
-        # TODO : for some reason this comes out as an integer...
         epoch_metrics = met_train.get_metrics()
         avg_loss = epoch_metrics["loss"] / dataset_sizes[TRAIN]
-        avg_acc = epoch_metrics["acc"] / dataset_sizes[TRAIN]
+        avg_acc = float(epoch_metrics["acc"]) / dataset_sizes[TRAIN]
         avg_train_met.update({"loss": avg_loss, "acc": avg_acc})
 
         model.train(False)
@@ -157,10 +158,9 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             met_val.update({"loss": loss.data, "acc": torch.sum(preds == labels.data)})
 
         avg_loss_val = met_val.get_metrics()["loss"] / dataset_sizes[VAL]
-        avg_acc_val = met_val.get_metrics()["acc"] / dataset_sizes[VAL]
+        avg_acc_val = float(met_val.get_metrics()["acc"]) / dataset_sizes[VAL]
         avg_val_met.update({"loss": avg_loss_val, "acc": avg_acc_val})
 
-        # TODO : debut accuracy
         logging.info("Epoch {} result: ".format(epoch))
         logging.info("Avg loss (train): {:.4f}".format(avg_loss))
         logging.info("Avg acc (train): {}/{}: {:.4f}".format(met_train.get_metrics()["acc"], dataset_sizes[TRAIN], avg_acc))
