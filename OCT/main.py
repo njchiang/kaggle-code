@@ -51,8 +51,7 @@ def main(_):
             model, ds=ds, criterion=criterion, save_dir=FLAGS.save_dir,
             optimizer=optimizer_ft, scheduler=exp_lr_scheduler, 
             num_epochs=FLAGS.epochs, debug=FLAGS.debug)
-            
-        save_model(model, FLAGS.checkpoint)
+        # save_model(model, FLAGS.checkpoint)
     
     if FLAGS.val:
         logging.info("Running validation")
