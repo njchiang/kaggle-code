@@ -49,7 +49,7 @@ def eval_model(model, criterion, ds, mode="val"):
     
     for i, data in tqdm(enumerate(dataloader)):
         if i % 100 == 0:
-            logging.info("\rTest batch {}/{}".format(i, test_batches), end='', flush=True)
+            logging.info("\rTest batch {}/{}".format(i, test_batches))
         model.train(False)
         model.eval()
         inputs, labels = data
@@ -116,7 +116,7 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
         
         for i, data in tqdm(enumerate(dataloaders[TRAIN])):
             if i % 100 == 0:
-                logging.info("\rTraining batch {}/{}".format(i, train_batches / 2), end='', flush=True)
+                logging.info("\rTraining batch {}/{}".format(i, train_batches / 2))
             
             if i > max_iter:
                 break
@@ -143,7 +143,7 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
             
         for i, data in tqdm(enumerate(dataloaders[VAL])):
             if i % 100 == 0:
-                logging.info("\rValidation batch {}/{}".format(i, val_batches), end='', flush=True)
+                logging.info("\rValidation batch {}/{}".format(i, val_batches))
             
             if i > max_iter:
                 break
