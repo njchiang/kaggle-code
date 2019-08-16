@@ -77,13 +77,13 @@ def main(_):
     if FLAGS.val:
         logging.info("Running validation")
         eval_model(model, criterion, ds=ds, mode="val")
-        if FLAGS.deploy
+        if FLAGS.deploy:
         visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
     
     if FLAGS.test:
         logging.info("Running inference on test set")
         eval_model(model, criterion, ds=ds, mode="test")
-        if FLAGS.deploy
+        if FLAGS.deploy:
         visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
 
 
