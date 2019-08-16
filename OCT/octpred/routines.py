@@ -113,7 +113,8 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
 
         for i, data in tqdm(enumerate(dataloaders[TRAIN])):
             if i % 100 == 0:
-                logging.info("\rTraining batch {}/{}: Loss = {:.4f}".format(i, train_batches, loss.data))
+                if i > 0:
+                    logging.info("\rTraining batch {}/{}: Loss = {:.4f}".format(i, train_batches, loss.data))
 
             if i > max_iter:
                 break
