@@ -39,7 +39,7 @@ def train_step(model, inputs, labels, optimizer, criterion):
 def eval_model(model, criterion, ds, mode="val"):
     
     since = time.time()
-    met = Metrics(initial_value_dict={"loss": 0, "acc": 0})
+    met = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
     avg_loss = 0
     avg_acc = 0
     dataloader = ds.get_dataloaders()[mode]
@@ -86,11 +86,11 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
     since = time.time()
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
-    avg_train_met = Metrics(initial_value_dict={"loss": 0, "acc": 0})
-    avg_val_met = Metrics(initial_value_dict={"loss": 0, "acc": 0})
+    avg_train_met = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
+    avg_val_met = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
     
-    met_train = Metrics(initial_value_dict={"loss": 0, "acc": 0})
-    met_val = Metrics(initial_value_dict={"loss": 0, "acc": 0})
+    met_train = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
+    met_val = Metrics(initial_value_dict={"loss": 0., "acc": 0.})
     
     dataloaders = ds.get_dataloaders()
     dataset_sizes = ds.get_dataset_sizes()
