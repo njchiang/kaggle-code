@@ -79,7 +79,7 @@ def eval_model(model, criterion, ds, mode="val"):
     
     logging.info("Evaluation completed in {:.0f}m {:.0f}s".format(elapsed_time // 60, elapsed_time % 60))
     logging.info("Avg loss (test): {:.4f}".format(avg_loss))
-    logging.info("Avg acc (test): {:.4f}".format(avg_acc))
+    logging.info("Avg acc (test): {}/{}: {:.4f}".format(met.get_metrics()["acc"], ds.get_dataset_sizes()[mode], avg_acc))
     logging.info('-' * 10)
 
 def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=False, val=True, save_dir=None):
@@ -167,11 +167,10 @@ def train_model(model, ds, criterion, optimizer, scheduler, num_epochs=1, debug=
         
         logging.info("Epoch {} result: ".format(epoch))
         logging.info("Avg loss (train): {:.4f}".format(avg_loss))
-        logging.info("Avg acc (train): {:.4f}".format(avg_acc))
+        logging.info("Avg acc (train): {}/{}: {:.4f}".format(met_train.get_metrics()["acc"], dataset_sizes[TRAIN], avg_acc))
         logging.info("Avg loss (val): {:.4f}".format(avg_loss_val))
-        logging.info("Avg acc (val): {:.4f}".format(avg_acc_val))
+        logging.info("Avg acc (val): {}/{}: {:.4f}".format(met_val.get_metrics()["acc"], dataset_sizes[VAL], avg_acc_val))
         logging.info('-' * 10)
-        
         
         if avg_acc_val > best_acc:
             best_acc = avg_acc_val
