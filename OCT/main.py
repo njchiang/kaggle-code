@@ -21,7 +21,7 @@ flags.DEFINE_boolean("debug", False, "debug mode")
 flags.DEFINE_boolean("train", False, "training")
 flags.DEFINE_boolean("val", False, "inference on validation")
 flags.DEFINE_boolean("test", False, "inference on testing")
-flags.DEFINE_string("deploy", None, "dataset to run inference and visualization")
+flags.DEFINE_boolean("deploy", None, "dataset to run inference and visualization")
 flags.DEFINE_boolean("restore", False, "try to restore")
 flags.DEFINE_string("gpu", "0", "gpu id")
 
@@ -58,6 +58,12 @@ def main(_):
     if use_gpu:
         model.cuda()
 
+    if FLAGS.deploy in ['train', 'val', 'test']:
+        save_path = os.path.join(FLAGS.save_dir, "figs", FLAGS.deploy)
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        logging.info("Running inference and visualizing on {} set".format(FLAGS.deploy))
+
     if FLAGS.train:
         logging.info("Training over {} epochs".format(FLAGS.epochs))    
         optimizer_ft = torch.optim.Adam(model.parameters(), lr=FLAGS.learning_rate)
@@ -71,17 +77,15 @@ def main(_):
     if FLAGS.val:
         logging.info("Running validation")
         eval_model(model, criterion, ds=ds, mode="val")
-
+        if FLAGS.deploy
+        visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
+    
     if FLAGS.test:
         logging.info("Running inference on test set")
         eval_model(model, criterion, ds=ds, mode="test")
-
-    if FLAGS.deploy in ['train', 'val', 'test']:
-        save_path = os.path.join(FLAGS.save_dir, "figs", FLAGS.deploy)
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
-        logging.info("Running inference and visualizing on {} set".format(FLAGS.deploy))
+        if FLAGS.deploy
         visualize_model(model, ds, num_images=FLAGS.batch_size, mode=FLAGS.deploy, save_dir=save_path)
+
 
     logging.info("Exiting...")
 
