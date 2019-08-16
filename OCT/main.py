@@ -22,10 +22,17 @@ flags.DEFINE_boolean("train", False, "training")
 flags.DEFINE_boolean("val", False, "inference on validation")
 flags.DEFINE_boolean("test", False, "inference on testing")
 flags.DEFINE_boolean("restore", False, "try to restore")
+flags.DEFINE_string("gpu", "0", "gpu id")
 
 use_gpu = torch.cuda.is_available()
 
 def main(_):
+    if FLAGS.gpu:
+        os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+        os.environ["CUDA_VISIBLE_DEVICES"]=FLAGS.gpu
+
+    if torch.cuda.is_available():
+        logging.info("Using device: {}".format(FLAGS.gpu))
     ds = OCTDataSet(FLAGS.data_dir, FLAGS.batch_size, FLAGS.num_workers)
     logging.info("Dataset loaded")
 
