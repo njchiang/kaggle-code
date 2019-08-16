@@ -13,13 +13,13 @@ VAL = 'val'
 TEST = 'test'
 
 class OCTDataSet:
-    def __init__(self, data_dir, batch_size=8, num_workers=None):
+    def __init__(self, data_dir, batch_size, num_workers=None):
         self.data_dir = data_dir
 
         num_workers = num_workers if num_workers else MAX_CPU_COUNT
         data_transforms = self._create_transforms()
         image_datasets, class_names = self._create_folder_datasets(data_dir, data_transforms)
-        dataloaders, dataset_sizes = self.create_dataloaders(image_datasets)
+        dataloaders, dataset_sizes = self.create_dataloaders(image_datasets, batch_size)
 
         for x in [TRAIN, VAL, TEST]:
             print("Loaded {} images under {}".format(dataset_sizes[x], x))
@@ -60,7 +60,7 @@ class OCTDataSet:
         self._class_names = self._image_datasets[TRAIN].classes
         return self._image_datasets, self._class_names
 
-    def create_dataloaders(self, image_datasets, batch_size=8, num_workers=MAX_CPU_COUNT):
+    def create_dataloaders(self, image_datasets, batch_size, num_workers=MAX_CPU_COUNT):
 
         self._dataloaders = {
             x: torch.utils.data.DataLoader(
