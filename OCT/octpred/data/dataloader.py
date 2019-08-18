@@ -22,7 +22,7 @@ DS_NAME = 'amish'  # kermany
 
 
 class OCTDataSet:
-    def __init__(self, data_dir=None, batch_size=32, num_workers=None, ds_name="kermany", files_list=None, csv_file=None, pathologies=None):
+    def __init__(self, data_dir=None, batch_size=32, num_workers=None, ds_name="kermany", files_list=None, csv_file=None, pathology=None):
         assert ds_name in ["amish", "kermany"], "Unrecognized dataset name"
         
         num_workers = num_workers if num_workers else MAX_CPU_COUNT
@@ -37,7 +37,7 @@ class OCTDataSet:
 
             assert files_list, "Files list missing"
             assert csv_file, "Label csv missing"
-            assert pathologies, "Pathologies list missing"
+            assert pathology, "Pathology (column name) missing"
             # need to split files_list into multiple files here
             n_files = len(files_list)
             train_n = n_files // 2
@@ -47,7 +47,7 @@ class OCTDataSet:
                 VAL: files_list[train_n:val_n],
                 TEST: files_list[val_n:]
             }
-            image_datasets, class_names = self._create_amish_datasets(files_list, csv_file, pathologies, data_transforms)
+            image_datasets, class_names = self._create_amish_datasets(files_list, csv_file, pathology, data_transforms)
 
         dataloaders, dataset_sizes = self.create_dataloaders(image_datasets, batch_size)
 
