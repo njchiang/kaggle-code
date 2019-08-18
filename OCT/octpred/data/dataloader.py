@@ -31,6 +31,7 @@ class OCTDataSet:
         if ds_name.lower() == "kermany":
             assert data_dir, "No data directory specified"
             self.data_dir = data_dir
+            self.partitions = [TRAIN, VAL, TEST]
             image_datasets, class_names = self._create_folder_datasets(data_dir, data_transforms)
         elif ds_name.lower() == "amish":
                     # files_list, csv_file,pathology, transform=None
@@ -45,6 +46,7 @@ class OCTDataSet:
             files_list = {
                 TEST: files_list
             }
+            self.partitions = [TEST]
             # files_list = {
             #     TRAIN: files_list[:train_n],
             #     VAL: files_list[train_n:val_n],
@@ -89,7 +91,7 @@ class OCTDataSet:
             x: datasets.ImageFolder(
             os.path.join(data_dir, x), 
             transform=data_transforms.get(x, transforms.ToTensor())
-        ) for x in [TRAIN, VAL, TEST]}
+        ) for x in self.partitions}
         self._class_names = self._image_datasets[TRAIN].classes
         return self._image_datasets, self._class_names
 
@@ -99,7 +101,7 @@ class OCTDataSet:
         self._image_datasets = {
             # get labels and classes
             x: AmishDataset(files_list[x], csv_file, pathology, transform=data_transforms[x])
-        for x in [TEST]} # for x in [TRAIN, VAL, TEST]}
+        for x in self.partitions} # for x in [TRAIN, VAL, TEST]}
         # TODO figure out how to add these
         self._class_names = None
         return self._image_datasets, self._class_names
@@ -111,7 +113,7 @@ class OCTDataSet:
                 image_datasets[x], batch_size=batch_size,
                 shuffle=True, num_workers=num_workers
             )
-            for x in [TRAIN, VAL, TEST]}
+            for x in self.partitions}
         self._dataset_sizes = {x: len(image_datasets[x]) for x in [TRAIN, VAL, TEST]}
 
         return self._dataloaders, self._dataset_sizes
