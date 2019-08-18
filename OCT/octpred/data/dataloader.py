@@ -166,16 +166,18 @@ class AmishDataset(Dataset):
         image = io.imread(img_name)
         
         pat_id,eye = self.getPatID(img_name)
-
+        
+        if self.transform:
+            image = self.transform(image)
+        
         try:
             pheno = self.df.loc[pat_id,f'{self.pathology}_{eye}']
         except KeyError:
             pheno = -1  # TODO : make this more robust
-        sample = {'image': image, 'pheno': pheno}
-
-        if self.transform:
-            sample = self.transform(sample)
-        return sample
+        # sample = {'image': image, 'pheno': pheno}
+        
+        # return sample
+        return image, pheno
     
     def getPatID(self,img_name):
         img_name = Path(img_name)       
