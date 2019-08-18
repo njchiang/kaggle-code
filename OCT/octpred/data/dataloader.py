@@ -22,7 +22,7 @@ DS_NAME = 'amish'  # kermany
 
 
 class OCTDataSet:
-    def __init__(self, data_dir=None, batch_size=32, num_workers=None, ds_name="kermany", files_list=None, csv_file=None, pathology=None):
+    def __init__(self, data_dir=None, batch_size=32, num_workers=None, ds_name="kermany", files_list=None, csv_file=None, pathology=None, num_val=1):
         assert ds_name in ["amish", "kermany"], "Unrecognized dataset name"
         
         num_workers = num_workers if num_workers else MAX_CPU_COUNT
@@ -41,7 +41,7 @@ class OCTDataSet:
             # need to split files_list into multiple files here
             n_files = len(files_list)
             train_n = n_files // 2
-            val_n = train_n + 32  # hope this works
+            val_n = train_n + num_val  # hope this works
             files_list = {
                 TRAIN: files_list[:train_n],
                 VAL: files_list[train_n:val_n],
