@@ -143,7 +143,10 @@ class AmishDataset(Dataset):
                 on a sample.
         """
         self.df = pd.read_csv(csv_file,index_col='PAT_ID')
-        self.files_list = np.array(files_list)
+        included, excluded = self.checkPatIDs(files_list)
+        
+        self.files_list = np.array(included)
+        self.excluded = np.array(excluded)
         self.pathology = pathology
         self.transform = transform
 
@@ -168,3 +171,13 @@ class AmishDataset(Dataset):
     def getPatID(self,img_name):
         img_name = Path(img_name)       
         return '_'.join(img_name.name.split('_')[:3]), img_name.name.split('_')[3]
+
+    def checkPatIDs(self, files_list):
+        included, excluded = [], []
+        for img_name in files_list:
+            pat_id = self.getPatID(img_name)
+            if pat_id in self.df.index:
+                included.append(pat_id)
+            else:
+                excluded.append(pat_id)
+        return included, excluded
