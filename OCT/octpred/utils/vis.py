@@ -28,7 +28,7 @@ def show_databatch(inputs, classes, class_names, save_dir=None):
     show = False if save_dir else True
     imshow(out, title=[class_names[x] for x in classes], save_path=save_dir, show=show)
 
-def visualize_model(model, ds, mode="val", num_images=6, save_dir=None):
+def visualize_model(model, ds, mode="val", num_images=6, save_dir=None, show_gt=False):
     # TODO: output multiple figures 
     gt_fig_path = None
     pred_fig_path = None
@@ -61,8 +61,9 @@ def visualize_model(model, ds, mode="val", num_images=6, save_dir=None):
         _, preds = torch.max(outputs.data, 1)
         predicted_labels = [preds[j] for j in range(inputs.size()[0])]
         
-        print("Ground truth:")
-        show_databatch(inputs.data.cpu(), labels.data.cpu(), class_names, gt_fig_path)
+        if show_gt:  # might not want to do this if rnuning inference, because the labels might be off
+            print("Ground truth:")
+            show_databatch(inputs.data.cpu(), labels.data.cpu(), class_names, gt_fig_path)
         print("Prediction:")
         show_databatch(inputs.data.cpu(), predicted_labels, class_names, pred_fig_path)
         
