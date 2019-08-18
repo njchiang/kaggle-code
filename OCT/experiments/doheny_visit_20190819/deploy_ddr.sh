@@ -10,6 +10,6 @@ python main.py \
     --deploy  \
     --val \
     --restore \
-    --checkpoint=/opt/data/workingdir/jnchiang/share/oct/weights/session-best.pt \
+    --checkpoint=/opt/data/workingdir/jnchiang/share/oct/resnet50_for_doheny_visit-20190819/session-best.pt \
     --batch_size=8
     # --debug
