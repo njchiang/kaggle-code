@@ -5,6 +5,7 @@ from pathlib import Path
 from skimage import io
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -163,7 +164,11 @@ class AmishDataset(Dataset):
             idx = idx.tolist()
 
         img_name = self.files_list[idx]
+        
+        # 3 steps: 1. read image, 2. copy 3x, 3. convert to pillow image
         image = io.imread(img_name)
+        image = np.stack(3 * [image], 2)  # convert to RGB but only copies (following kermany)
+        image = Image.fromarray(image)
         
         pat_id,eye = self.getPatID(img_name)
         
