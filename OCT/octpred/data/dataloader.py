@@ -56,7 +56,7 @@ class OCTDataSet:
 
         dataloaders, dataset_sizes = self.create_dataloaders(image_datasets, batch_size)
 
-        for x in [TRAIN, VAL, TEST]:
+        for x in self.partitions:
             print("Loaded {} images under {}".format(dataset_sizes[x], x))
         
         if class_names:
@@ -92,7 +92,7 @@ class OCTDataSet:
             os.path.join(data_dir, x), 
             transform=data_transforms.get(x, transforms.ToTensor())
         ) for x in self.partitions}
-        self._class_names = self._image_datasets[TRAIN].classes
+        self._class_names = self._image_datasets[self.partitions[0]].classes
         return self._image_datasets, self._class_names
 
     def _create_amish_datasets(self, files_list, csv_file, pathology, data_transforms=dict()):
@@ -114,7 +114,7 @@ class OCTDataSet:
                 shuffle=True, num_workers=num_workers
             )
             for x in self.partitions}
-        self._dataset_sizes = {x: len(image_datasets[x]) for x in [TRAIN, VAL, TEST]}
+        self._dataset_sizes = {x: len(image_datasets[x]) for x in self.partitions}
 
         return self._dataloaders, self._dataset_sizes
 
