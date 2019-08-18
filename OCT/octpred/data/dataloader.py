@@ -186,7 +186,7 @@ class AmishDataset(Dataset):
         for img_name in files_list:
             pat_id, _ = self.getPatID(img_name)
             if pat_id in self.df.index:
-                included.append(pat_id)
+                included.append(img_name)
             else:
-                excluded.append(pat_id)
+                excluded.append(img_name)
         return included, excluded
