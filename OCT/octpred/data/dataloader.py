@@ -43,10 +43,13 @@ class OCTDataSet:
             train_n = n_files // 2
             val_n = train_n + num_val  # hope this works
             files_list = {
-                TRAIN: files_list[:train_n],
-                VAL: files_list[train_n:val_n],
-                TEST: files_list[val_n:]
+                TEST: files_list
             }
+            # files_list = {
+            #     TRAIN: files_list[:train_n],
+            #     VAL: files_list[train_n:val_n],
+            #     TEST: files_list[val_n:]
+            # }
             image_datasets, class_names = self._create_amish_datasets(files_list, csv_file, pathology, data_transforms)
 
         dataloaders, dataset_sizes = self.create_dataloaders(image_datasets, batch_size)
@@ -96,7 +99,7 @@ class OCTDataSet:
         self._image_datasets = {
             # get labels and classes
             x: AmishDataset(files_list[x], csv_file, pathology, transform=data_transforms[x])
-        for x in [TRAIN, VAL, TEST]}
+        for x in [TEST]} # for x in [TRAIN, VAL, TEST]}
         # TODO figure out how to add these
         self._class_names = None
         return self._image_datasets, self._class_names
@@ -161,7 +164,11 @@ class AmishDataset(Dataset):
         image = io.imread(img_name)
         
         pat_id,eye = self.getPatID(img_name)
-        pheno = self.df.loc[pat_id,f'{self.pathology}_{eye}']
+
+        try:
+            pheno = self.df.loc[pat_id,f'{self.pathology}_{eye}']
+        except KeyError:
+            pheno = -1  # TODO : make this more robust
         sample = {'image': image, 'pheno': pheno}
 
         if self.transform:
