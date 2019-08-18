@@ -101,7 +101,7 @@ class OCTDataSet:
         # This will load the whole dataset for train, test, and val
         self._image_datasets = {
             # get labels and classes
-            x: AmishDataset(files_list[x], csv_file, pathology, transform=data_transforms[x])
+            x: AmishDataset(files_list[x], csv_file, pathology, transform=data_transforms[x], mode=x)
         for x in self.partitions} # for x in [TRAIN, VAL, TEST]}
         # TODO figure out how to add these
         self._class_names = None
@@ -139,7 +139,7 @@ class OCTDataSet:
 class AmishDataset(Dataset):
     """Face Landmarks dataset."""
 
-    def __init__(self, files_list, csv_file, pathology, transform=None):
+    def __init__(self, files_list, csv_file, pathology, transform=None, mode="train"):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -149,8 +149,12 @@ class AmishDataset(Dataset):
                 on a sample.
         """
         self.df = pd.read_csv(csv_file,index_col='PAT_ID')
-        included, excluded = self.checkPatIDs(files_list)
-        
+        if mode == "test":  # make sure they are in the csv file for training mode
+            included = files_list
+            excluded = []
+        else:
+            included, excluded = self.checkPatIDs(files_list)
+
         self.files_list = np.array(included)
         self.excluded = np.array(excluded)
         self.pathology = pathology
